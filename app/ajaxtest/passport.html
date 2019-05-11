@@ -1,0 +1,111 @@
+  <!DOCTYPE html>
+  <html>
+    <head>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+	    <meta charset="utf-8">
+    </head>
+
+<body >
+<button onclick="createToken()">Create Token</button>
+<button onclick="getToken()">Get Token</button>
+<button onclick="getUser()">Get User</button>
+<button onclick="getPatient()">Get Patient</button>
+<button onclick="clearLocalStorage()">Clear token</button>
+
+
+</body>
+<script src="https://code.jquery.com/jquery-1.9.1.min.js"></script>
+
+<script type="text/javascript">
+    function createToken(){
+      $.ajax({
+           type: "POST",
+           url: "http://localhost/laravelpassport/public/oauth/token",
+           datatype: 'json',
+           data: ({
+              'grant_type' : 'password',
+              'client_id' : '2',
+              'client_secret' : '7b76rFsJ1nuibqUHtZ8xFVnHVFL9ej7z52vYqDUR',
+              'username' : 'jo@gmail.com',
+              'password' : '11111111'
+            }),
+           success: function(data) {
+              console.log(data);
+              window.localStorage.setItem("token", data.access_token);          
+           },
+           error: function(err) {
+              console.log("Error occurred ! " + err.status);
+          }
+      });
+    };
+
+  function getToken(){
+      console.log(window.localStorage.getItem("token"));
+  };
+
+  function getUser(){
+    if(window.localStorage.getItem("token") == null){
+      alert('token not found');
+      return;
+    }
+
+    $.ajax({
+        headers: {
+              Authorization: "Bearer " + window.localStorage.getItem("token")
+        },
+       contentType: 'application/x-www-form-urlencoded',
+       type: "GET",
+       url: "http://localhost/laravelpassport/public/api/user",
+       success: function(data) {
+        if (typeof data.name !== "undefined")
+        {
+            console.log(data); 
+        }else{
+           console.log("something wrong, may be need to check token");
+        }
+       },
+       error: function(err) {
+          console.log("Error occurred ! " + err.status);
+      }
+    });
+  };
+ 
+  function getPatient(){
+    if(window.localStorage.getItem("token") == null){
+      alert('token not found');
+      return;
+    }
+    var hospital_id = 1;
+
+    $.ajax({
+        headers: {
+              Authorization: "Bearer " + window.localStorage.getItem("token")
+        },
+       contentType: 'application/x-www-form-urlencoded',
+       type: "POST",
+       url: "http://localhost/laravelpassport/public/api/getpatient",
+       data: ({
+        'id' : hospital_id,
+        }),
+       success: function(data) {
+        if (typeof data[0].patientname !== "undefined")
+        {
+            console.log(data);   
+        }else{
+           console.log("something wrong, may be need to check token");
+        }
+       },
+       error: function(err) {
+          console.log("Error occurred ! " + err.status);
+      }
+    });
+  };
+
+  function clearLocalStorage(){
+    window.localStorage.removeItem("token")
+  }
+
+
+</script>
+</html>
+        
